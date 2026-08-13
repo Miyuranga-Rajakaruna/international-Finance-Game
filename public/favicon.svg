@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="#1b212f"/>
+  <rect x="2" y="2" width="60" height="60" rx="10" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.6"/>
+  <!-- Courtroom Gavel SVG Icon in Gold -->
+  <g transform="translate(8, 8)">
+    <path d="M12 24 L28 40 M24 28 L32 20 M16 36 L24 28" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+    <rect x="24" y="8" width="16" height="12" rx="2" fill="#D4AF37" transform="rotate(45 32 14)"/>
+    <rect x="4" y="42" width="40" height="4" rx="2" fill="#D4AF37"/>
+  </g>
+</svg>
