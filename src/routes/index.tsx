@@ -26,11 +26,11 @@ export const Route = createFileRoute("/")({
 });
 
 const levels = [
-  { n: "01", title: "Level 01", icon: Coins, note: "Washington Testimony: Five words that triggered sovereign default" },
-  { n: "02", title: "Level 02", icon: TrendingUp, note: "Petrodollar Inflows: Surplus oil export revenues recycled into foreign loans" },
-  { n: "03", title: "Level 03", icon: Gavel, note: "US Monetary Tightening: 1979 Fed interest rate hikes & inflation shock" },
-  { n: "04", title: "Level 04", icon: FileText, note: "Rescue Initiatives: Baker plan, Brady plan, and IMF structural aid" },
-  { n: "05", title: "Level 05", icon: ShieldCheck, note: "Final Lock Verdict: Secret keyword decryption & courtroom decision" },
+  { n: "01", title: "Level 01", icon: Coins },
+  { n: "02", title: "Level 02", icon: TrendingUp },
+  { n: "03", title: "Level 03", icon: Gavel },
+  { n: "04", title: "Level 04", icon: FileText },
+  { n: "05", title: "Level 05", icon: ShieldCheck },
 ];
 
 const fade = (delay = 0) => ({
@@ -53,10 +53,9 @@ function Index() {
         <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pt-24 pb-20 text-center sm:pt-32">
           <motion.div
             {...fade(0)}
-            className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-wider text-primary uppercase"
+            className="label-stencil text-muted-foreground tracking-[0.3em] uppercase"
           >
-            <Lock className="h-3.5 w-3.5" />
-            Classroom Courtroom Docket
+            — Case File · 1982 —
           </motion.div>
 
           <motion.h1
@@ -143,9 +142,6 @@ function Index() {
               <lv.icon className="h-5 w-5 text-accent" />
               <div className="flex-1">
                 <h3 className="text-xl font-semibold">{lv.title}</h3>
-                <p className="font-mono text-xs tracking-wider text-muted-foreground uppercase">
-                  {lv.note}
-                </p>
               </div>
               <Lock className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
             </motion.div>
