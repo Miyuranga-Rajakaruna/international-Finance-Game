@@ -11,10 +11,9 @@ import {
   ArrowRight,
   Award,
   AlertTriangle,
-  Clock,
 } from "lucide-react";
 import { QUESTIONS, SECRET_WORD, SECRET_WORD_LENGTH, type LevelQuestion } from "@/lib/levels";
-import { getStoredPlayer, type StoredPlayer, clearPlayer } from "@/lib/player";
+import { getStoredPlayer, type StoredPlayer } from "@/lib/player";
 import { recordAnswer, finishGame, getAdminLeaderboard, type AdminPlayerRow } from "@/lib/game.service";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,13 +47,7 @@ function Play() {
   const navigate = useNavigate();
   const [player, setPlayer] = useState<StoredPlayer | null>(null);
 
-  // Active step index:
-  // 0 -> Question 1
-  // 1 -> Question 2
-  // 2 -> Question 3
-  // 3 -> Question 4
-  // 4 -> Final Lock / Hidden Word Input Page
-  // 5 -> Final Verdict Outcome Page
+  // Active step index: 0, 1, 2, 3 (exhibits), 4 (final lock), 5 (verdict outcome)
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // Track answers for all 4 questions
@@ -64,6 +57,9 @@ function Play() {
     3: { choice: null, isCorrect: null },
     4: { choice: null, isCorrect: null },
   });
+
+  // Feedback box visibility state (shows for 2 seconds after selecting answer)
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
 
   // State for Hidden Word Page (Step 4)
   const [hiddenWordInput, setHiddenWordInput] = useState("");
@@ -98,6 +94,10 @@ function Play() {
       localStorage.setItem("op1982.startTime", String(Date.now()));
     }
   }, [navigate]);
+
+  useEffect(() => {
+    setShowFeedback(false);
+  }, [currentStep]);
 
   // Subscribe to live database updates when student reaches final verdict screen
   useEffect(() => {
@@ -145,7 +145,13 @@ function Play() {
       [qNum]: { choice, isCorrect },
     }));
 
+    setShowFeedback(true);
     recordAnswer(player.id, qNum, choice, isCorrect);
+
+    // Auto-disappear feedback banner after 1.0 second (1000 ms)
+    setTimeout(() => {
+      setShowFeedback(false);
+    }, 1000);
   };
 
   // Handle submitting final verdict (Hidden Word guess)
@@ -295,75 +301,91 @@ function Play() {
                   </div>
                 </div>
               ) : (
-                /* ONCE ANSWERED: QUESTION DISAPPEARS, SHOW RESULT MESSAGE & UNLOCK BUTTON */
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mt-6 py-4"
-                >
-                  <div
-                    className={`rounded-sm border p-6 sm:p-8 ${
-                      currentAnswerState.isCorrect
-                        ? "border-success/60 bg-success/10"
-                        : "border-destructive/60 bg-destructive/10"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {currentAnswerState.isCorrect ? (
-                        <CheckCircle2 className="h-8 w-8 text-success" />
-                      ) : (
-                        <XCircle className="h-8 w-8 text-destructive" />
-                      )}
-                      <div>
-                        <h3 className="text-2xl font-bold tracking-tight">
-                          {currentAnswerState.isCorrect
-                            ? "YOUR ANSWER IS CORRECT!"
-                            : "YOUR ANSWER IS INCORRECT!"}
-                        </h3>
-                        <p className="label-stencil mt-1 text-muted-foreground">
-                          Answer Selected: {currentAnswerState.choice}
+                /* ONCE ANSWERED: SHOW FEEDBACK BANNER FOR 2 SECONDS, THEN SHOW ONLY UNLOCK BUTTON */
+                <AnimatePresence mode="wait">
+                  {showFeedback ? (
+                    <motion.div
+                      key="feedback-banner"
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.35 }}
+                      className="mt-6 py-4"
+                    >
+                      <div
+                        className={`rounded-sm border p-6 sm:p-8 ${
+                          currentAnswerState.isCorrect
+                            ? "border-success/60 bg-success/10"
+                            : "border-destructive/60 bg-destructive/10"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {currentAnswerState.isCorrect ? (
+                            <CheckCircle2 className="h-8 w-8 text-success" />
+                          ) : (
+                            <XCircle className="h-8 w-8 text-destructive" />
+                          )}
+                          <div>
+                            <h3 className="text-2xl font-bold tracking-tight">
+                              {currentAnswerState.isCorrect
+                                ? "YOUR ANSWER IS CORRECT!"
+                                : "YOUR ANSWER IS INCORRECT!"}
+                            </h3>
+                            <p className="label-stencil mt-1 text-muted-foreground">
+                              Answer Selected: {currentAnswerState.choice}
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="mt-5 font-mono text-sm leading-7 text-foreground/90">
+                          {currentQuestion.explanation}
                         </p>
-                      </div>
-                    </div>
 
-                    <p className="mt-5 font-mono text-sm leading-7 text-foreground/90">
-                      {currentQuestion.explanation}
-                    </p>
-
-                    {currentAnswerState.isCorrect ? (
-                      <div className="mt-5 inline-flex items-center gap-2 border border-success/40 bg-success/20 px-4 py-2 font-mono text-xs text-success uppercase">
-                        <Unlock className="h-4 w-4" /> Letter Unlocked: #{currentQuestion.n} = [
-                        {currentQuestion.revealedLetter}]
+                        {currentAnswerState.isCorrect ? (
+                          <div className="mt-5 inline-flex items-center gap-2 border border-success/40 bg-success/20 px-4 py-2 font-mono text-xs text-success uppercase">
+                            <Unlock className="h-4 w-4" /> Letter Unlocked: #{currentQuestion.n} = [
+                            {currentQuestion.revealedLetter}]
+                          </div>
+                        ) : (
+                          <div className="mt-5 inline-flex items-center gap-2 border border-destructive/40 bg-destructive/20 px-4 py-2 font-mono text-xs text-destructive uppercase">
+                            <Lock className="h-4 w-4" /> Letter #{currentQuestion.n} Remains Locked [?]
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <div className="mt-5 inline-flex items-center gap-2 border border-destructive/40 bg-destructive/20 px-4 py-2 font-mono text-xs text-destructive uppercase">
-                        <Lock className="h-4 w-4" /> Letter #{currentQuestion.n} Remains Locked [?]
-                      </div>
-                    )}
-                  </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="action-button-only"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="mt-8 flex flex-col items-center justify-center py-10 text-center"
+                    >
+                      <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase mb-6">
+                        Exhibit #{currentQuestion.n} Response Recorded · Proceed to Next Exhibit
+                      </p>
 
-                  {/* ACTION BUTTON TO PROCEED */}
-                  <div className="mt-8 flex justify-end">
-                    {currentStep < 3 ? (
-                      <button
-                        onClick={() => setCurrentStep((s) => s + 1)}
-                        className="inline-flex items-center justify-center gap-3 rounded-sm bg-primary px-8 py-4 font-mono text-sm font-bold tracking-[0.2em] text-primary-foreground uppercase transition-all hover:opacity-90 active:scale-[0.98] shadow-md cursor-pointer"
-                      >
-                        UNLOCK NEXT EXHIBIT
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setCurrentStep(4)}
-                        className="inline-flex items-center justify-center gap-3 rounded-sm bg-[#D4AF37] px-9 py-4 font-mono text-sm font-bold tracking-[0.2em] text-black uppercase transition-all hover:bg-[#F3E5AB] active:scale-[0.98] shadow-xl cursor-pointer"
-                        style={{ boxShadow: "0 0 25px rgba(212, 175, 55, 0.6)" }}
-                      >
-                        <Unlock className="h-5 w-5 text-black" />
-                        OPEN THE FINAL LOCK
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
+                      {currentStep < 3 ? (
+                        <button
+                          onClick={() => setCurrentStep((s) => s + 1)}
+                          className="inline-flex items-center justify-center gap-3 rounded-sm bg-primary px-10 py-4 font-mono text-sm font-bold tracking-[0.2em] text-primary-foreground uppercase transition-all hover:opacity-90 active:scale-[0.98] shadow-md cursor-pointer"
+                        >
+                          UNLOCK NEXT EXHIBIT
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => setCurrentStep(4)}
+                          className="inline-flex items-center justify-center gap-3 rounded-sm bg-[#D4AF37] px-10 py-4 font-mono text-sm font-bold tracking-[0.2em] text-black uppercase transition-all hover:bg-[#F3E5AB] active:scale-[0.98] shadow-xl cursor-pointer"
+                          style={{ boxShadow: "0 0 25px rgba(212, 175, 55, 0.6)" }}
+                        >
+                          <Unlock className="h-5 w-5 text-black" />
+                          OPEN THE FINAL LOCK
+                        </button>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
             </motion.div>
           )}
@@ -607,7 +629,7 @@ function Play() {
                 </div>
               </div>
 
-              {/* ACTION LINKS (NO TRY AGAIN BUTTON) */}
+              {/* ACTION LINKS */}
               <div className="mt-8 flex justify-center">
                 <Link
                   to="/board"
