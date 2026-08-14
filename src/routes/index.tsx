@@ -10,13 +10,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "A live classroom investigation game on the 1982 Latin American Debt Crisis. Four shocks, fifty investigators, one winner.",
+          "A live classroom investigation game on the 1982 Latin American Debt Crisis. Five shocks, fifty investigators, one winner.",
       },
       { property: "og:title", content: "Operation 1982 · The Dollar Trap" },
       {
         property: "og:description",
         content:
-          "Four financial shocks. Fifty investigators. One winner. Enter the 1982 debt crisis case file.",
+          "Five financial shocks. Fifty investigators. One winner. Enter the 1982 debt crisis case file.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,10 +26,11 @@ export const Route = createFileRoute("/")({
 });
 
 const levels = [
-  { n: "01", title: "Washington Testimony", icon: Coins, note: "Five words that triggered the sovereign default alarm" },
-  { n: "02", title: "Petrodollar Inflows", icon: TrendingUp, note: "Surplus oil export revenues recycled into foreign loans" },
-  { n: "03", title: "US Monetary Tightening", icon: Gavel, note: "1979 Fed interest rate hikes & inflation shock" },
-  { n: "04", title: "Rescue Initiatives", icon: FileText, note: "Baker plan, Brady plan, and IMF structural aid" },
+  { n: "01", title: "Level 01", icon: Coins, note: "Washington Testimony: Five words that triggered sovereign default" },
+  { n: "02", title: "Level 02", icon: TrendingUp, note: "Petrodollar Inflows: Surplus oil export revenues recycled into foreign loans" },
+  { n: "03", title: "Level 03", icon: Gavel, note: "US Monetary Tightening: 1979 Fed interest rate hikes & inflation shock" },
+  { n: "04", title: "Level 04", icon: FileText, note: "Rescue Initiatives: Baker plan, Brady plan, and IMF structural aid" },
+  { n: "05", title: "Level 05", icon: ShieldCheck, note: "Final Lock Verdict: Secret keyword decryption & courtroom decision" },
 ];
 
 const fade = (delay = 0) => ({
@@ -43,20 +44,19 @@ function Index() {
     <main className="relative min-h-screen overflow-hidden">
       {/* HERO SECTION */}
       <section className="relative isolate">
-        <img
-          src={heroImage}
-          alt="1982 case file: sovereign bond certificates and debt crisis dossier on dark desk"
-          width={1600}
-          height={1008}
-          className="absolute inset-0 h-full w-full object-cover opacity-35"
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-20 filter grayscale contrast-125"
+          style={{ backgroundImage: `url(${heroImage})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
 
-        <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-24 text-center">
-          <motion.div {...fade(0)} className="flex items-center gap-3">
-            <span className="h-px w-10 bg-primary/50" />
-            <span className="label-stencil text-primary">Case File · 1982</span>
-            <span className="h-px w-10 bg-primary/50" />
+        <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 pt-24 pb-20 text-center sm:pt-32">
+          <motion.div
+            {...fade(0)}
+            className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 font-mono text-xs font-semibold tracking-wider text-primary uppercase"
+          >
+            <Lock className="h-3.5 w-3.5" />
+            Classroom Courtroom Docket
           </motion.div>
 
           <motion.h1
@@ -76,7 +76,7 @@ function Index() {
           >
             One financial system.
             <br />
-            Four shocks.
+            Five shocks.
             <br />
             Fifty investigators.
             <br />
@@ -107,7 +107,7 @@ function Index() {
       <section className="border-y border-border/60 bg-card/40 backdrop-blur">
         <div className="mx-auto grid max-w-5xl grid-cols-2 divide-x divide-border/60 sm:grid-cols-4">
           {[
-            ["4", "Crisis Levels"],
+            ["5", "Crisis Levels"],
             ["1", "Answer per Level"],
             ["Fastest", "Shown Live"],
             ["4/4", "To Qualify"],
@@ -123,7 +123,7 @@ function Index() {
       {/* LEVELS / SHOCKS LIST */}
       <section className="mx-auto max-w-5xl px-6 py-24">
         <div className="flex items-end justify-between gap-6 border-b border-border/60 pb-4">
-          <h2 className="text-3xl font-bold sm:text-4xl">The Four Shocks</h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">The Five Shocks</h2>
           <span className="label-stencil hidden text-muted-foreground sm:block">
             Self-paced investigation docket
           </span>
@@ -158,25 +158,27 @@ function Index() {
         <h2 className="text-4xl font-bold sm:text-5xl">
           The investigation <span className="text-gold">begins now.</span>
         </h2>
-        <p className="mx-auto mt-5 max-w-md font-mono text-sm text-muted-foreground">
+        <p className="mx-auto mt-4 max-w-lg font-mono text-xs leading-6 text-muted-foreground">
           Enter your real name to be recorded in the case ledger. Every second counts.
         </p>
-        <Link
-          to="/join"
-          className="mt-10 inline-flex items-center gap-3 rounded-sm bg-primary px-10 py-4 font-mono text-sm tracking-[0.3em] text-primary-foreground uppercase transition-transform hover:scale-[1.03]"
-        >
-          Join the Case
-        </Link>
-      </section>
 
-      {/* FOOTER - CLEAN FOR STUDENTS (NO ADMIN LINK EXPOSED) */}
-      <footer className="border-t border-border/60 px-6 py-8 text-center font-mono text-[11px] tracking-widest text-muted-foreground uppercase">
-        <div className="flex justify-center gap-6">
-          <Link to="/board" className="hover:text-primary">
-            Live board
+        <div className="mt-10 flex flex-wrap justify-center gap-4">
+          <Link
+            to="/join"
+            className="group inline-flex items-center gap-3 rounded-sm bg-primary px-10 py-4 font-mono text-sm tracking-[0.3em] text-primary-foreground uppercase transition-all hover:opacity-90 active:scale-[0.98]"
+            style={{ boxShadow: "var(--shadow-gold)" }}
+          >
+            <Lock className="h-4 w-4" />
+            Join the Case
           </Link>
         </div>
-        <p className="mt-4">Operation 1982 · Classroom Investigation Simulation</p>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-border/60 bg-card/20 px-6 py-8 text-center">
+        <p className="font-mono text-[11px] tracking-widest text-muted-foreground/60 uppercase">
+          Operation 1982 · International Finance Courtroom Drama Challenge
+        </p>
       </footer>
     </main>
   );
